@@ -56,9 +56,10 @@ def train(args):
     DATA_PATH = hydra.utils.to_absolute_path(args.dataset_dir)
 
     if args.dataset == 'ModelNet40':
-        train_loader = DataLoader(ModelNet40(DATA_PATH, partition='train', num_points=args.num_points), num_workers=8,
+        subset_fraction = args.get('subset_fraction', 1.0)
+        train_loader = DataLoader(ModelNet40(DATA_PATH, partition='train', num_points=args.num_points, subset_fraction=subset_fraction), num_workers=8,
                                 batch_size=args.batch_size, shuffle=True, drop_last=True)
-        test_loader = DataLoader(ModelNet40(DATA_PATH, partition='test', num_points=args.num_points), num_workers=8,
+        test_loader = DataLoader(ModelNet40(DATA_PATH, partition='test', num_points=args.num_points, subset_fraction=subset_fraction), num_workers=8,
                                 batch_size=args.test_batch_size, shuffle=False, drop_last=False)                                      
     elif args.dataset == 'ScanObjectNN':
         train_loader = DataLoader(ScanObjectNN(DATA_PATH, partition='training', num_points=args.num_points), num_workers=8,
@@ -244,7 +245,8 @@ def test(args):
     # data loading
     DATA_PATH = hydra.utils.to_absolute_path(args.dataset_dir)
     if args.dataset == 'ModelNet40':
-        test_loader = DataLoader(ModelNet40(DATA_PATH, partition='test', num_points=args.num_points), num_workers=8,
+        subset_fraction = args.get('subset_fraction', 1.0)
+        test_loader = DataLoader(ModelNet40(DATA_PATH, partition='test', num_points=args.num_points, subset_fraction=subset_fraction), num_workers=8,
                                 batch_size=args.test_batch_size, shuffle=False, drop_last=False)                                      
     elif args.dataset == 'ScanObjectNN':
         test_loader = DataLoader(ScanObjectNN(DATA_PATH, partition='test', num_points=args.num_points), num_workers=8,

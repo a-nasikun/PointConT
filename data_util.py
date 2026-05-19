@@ -119,8 +119,24 @@ def rotate_pointcloud(pointcloud):
 
 
 class ModelNet40(Dataset):
-    def __init__(self, data_dir=DATA_DIR, num_points=1024, partition='train'):
+    def __init__(self, data_dir=DATA_DIR, num_points=1024, partition='train', subset_fraction=1.0):
         self.data, self.label = load_modelnet40(data_dir, partition)
+        
+        # Training on 10% data only. Thank you!
+        if subset_fraction < 1.0:
+            new_data = []
+            new_label = []
+            unique_labels = np.unique(self.label)
+            for c in unique_labels:
+                idx = np.where(self.label == c)[0]
+                np.random.shuffle(idx)
+                num_samples = max(1, int(len(idx) * subset_fraction))
+                selected_idx = idx[:num_samples]
+                new_data.append(self.data[selected_idx])
+                new_label.append(self.label[selected_idx])
+            self.data = np.concatenate(new_data, axis=0)
+            self.label = np.concatenate(new_label, axis=0)
+            
         self.num_points = num_points
         self.partition = partition        
 

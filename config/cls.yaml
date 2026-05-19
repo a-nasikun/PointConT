@@ -5,6 +5,7 @@ defaults:
 
 eval: False
 flops_profiler: True
+subset_fraction: 0.1
 
 gpu: 0      # index, not num
 use_sgd: True
