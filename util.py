@@ -8,7 +8,7 @@ LastEditTime: 2022-05-18 12:24:51
 import torch
 import torch.nn.functional as F
 
-from deepspeed.profiling.flops_profiler import get_model_profile
+#from deepspeed.profiling.flops_profiler import get_model_profile
 
 import shutil
 import os
@@ -35,6 +35,7 @@ def cal_loss(pred, gold, smoothing=True):
     return loss
 
         
+''' Remove the profiling because we dont have deepspeed installed yet
 
 def profile_model(model, args):
     # model.eval()  # model eval
@@ -48,7 +49,7 @@ def profile_model(model, args):
         output_file=None,  # path to the output file. If None, the profiler prints to stdout.
         ignore_modules=None)  # the list of modules to ignore in the profiling
     return flops, macs, params
-
+'''
 
 
 class WandbUrls:

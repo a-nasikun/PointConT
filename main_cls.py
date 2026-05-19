@@ -24,7 +24,7 @@ from data_util import ModelNet40, ScanObjectNN
 from models.PointConT import PointConT_cls
 import numpy as np
 from torch.utils.data import DataLoader
-from util import cal_loss, Wandb, profile_model
+from util import cal_loss, Wandb #, profile_model remove the profile model
 import rsmix_provider
 import sklearn.metrics as metrics
 from torch.utils.tensorboard import SummaryWriter
@@ -281,12 +281,13 @@ def test(args):
     logger.info('test acc: %.6f'%(test_acc))
     logger.info('test avg acc: %.6f'%(test_acc_avg))
 
+    ''' Remove the profiling because we dont have deepspeed installed yet
     if args.flops_profiler:
         input = [torch.randn_like(data)]
         flops, macs, params = profile_model(model, input)
         logger.info(f'GFLOPs\tGMACs\tParams.(M)')
         logger.info(f'{flops/(float(batch_size)*1e9): .2f}\t{macs/(float(batch_size)*1e9): .2f}\t{params/1e6: .3f}')
-
+    '''
 
 @hydra.main(config_path='config', config_name='cls')
 def main(args):

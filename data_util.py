@@ -26,10 +26,16 @@ def download_modelnet40():
     if not os.path.exists(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048')):
         os.mkdir(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048'))
         www = 'https://shapenet.cs.stanford.edu/media/modelnet40_ply_hdf5_2048.zip'
-        zipfile = os.path.basename(www)
-        os.system('wget %s --no-check-certificate; unzip %s' % (www, zipfile))
-        os.system('mv %s %s' % (zipfile[:-4], DATA_DIR))
-        os.system('rm %s' % (zipfile))
+        zipfile_name = os.path.basename(www)
+        import urllib.request
+        import zipfile
+        import shutil
+        print(f"Downloading {zipfile_name}...")
+        urllib.request.urlretrieve(www, zipfile_name)
+        print(f"Extracting {zipfile_name}...")
+        with zipfile.ZipFile(zipfile_name, 'r') as zip_ref:
+            zip_ref.extractall(DATA_DIR)
+        os.remove(zipfile_name)
 
 
 def download_scanobjectnn():
@@ -38,14 +44,20 @@ def download_scanobjectnn():
     if not os.path.exists(os.path.join(DATA_DIR, 'h5_files')):
         os.mkdir(os.path.join(DATA_DIR, 'h5_files'))
         www = 'https://hkust-vgd.ust.hk/scanobjectnn/h5_files.zip'
-        zipfile = os.path.basename(www)
-        os.system('wget %s --no-check-certificate; unzip %s' % (www, zipfile))
-        os.system('mv %s %s' % (zipfile[:-4], DATA_DIR))
-        os.system('rm %s' % (zipfile))
+        zipfile_name = os.path.basename(www)
+        import urllib.request
+        import zipfile
+        import shutil
+        print(f"Downloading {zipfile_name}...")
+        urllib.request.urlretrieve(www, zipfile_name)
+        print(f"Extracting {zipfile_name}...")
+        with zipfile.ZipFile(zipfile_name, 'r') as zip_ref:
+            zip_ref.extractall(DATA_DIR)
+        os.remove(zipfile_name)
 
 
 def load_modelnet40(data_dir, partition):
-    # download_modelnet40()
+    download_modelnet40()
     all_data = []
     all_label = []
     for h5_name in glob.glob(os.path.join(data_dir, 'modelnet40*hdf5_2048', '*%s*.h5'%partition)):
