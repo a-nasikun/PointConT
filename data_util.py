@@ -20,44 +20,76 @@ from torch.utils.data import Dataset
 # change this to your data root
 DATA_DIR = './data/'
 
-def download_modelnet40():
-    if not os.path.exists(DATA_DIR):
-        os.mkdir(DATA_DIR)
-    if not os.path.exists(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048')):
-        os.mkdir(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048'))
-        www = 'https://shapenet.cs.stanford.edu/media/modelnet40_ply_hdf5_2048.zip'
+def download_modelnet40(data_dir):
+    if not os.path.exists(data_dir):
+        os.mkdir(data_dir)
+    target_dir = os.path.join(data_dir, 'modelnet40_ply_hdf5_2048')
+    # Check if a file inside actually exists to avoid empty directory bugs
+    if not os.path.exists(os.path.join(target_dir, 'ply_data_train0.h5')):
+        if not os.path.exists(target_dir):
+            os.mkdir(target_dir)
+        # Use Hugging Face mirror as Stanford server is frequently down
+        www = 'https://huggingface.co/datasets/Msun/modelnet40/resolve/main/modelnet40_ply_hdf5_2048.zip'
         zipfile_name = os.path.basename(www)
         import urllib.request
         import zipfile
         import shutil
-        print(f"Downloading {zipfile_name}...")
-        urllib.request.urlretrieve(www, zipfile_name)
+        import ssl
+        print(f"Downloading {zipfile_name} from Hugging Face mirror...")
+        
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        req = urllib.request.Request(www, headers={'User-Agent': 'Mozilla/5.0'})
+        
+        try:
+            with urllib.request.urlopen(req, context=ctx, timeout=30) as response, open(zipfile_name, 'wb') as out_file:
+                shutil.copyfileobj(response, out_file)
+        except Exception as e:
+            print(f"Failed to download the dataset: {e}")
+            print("Please download it manually from Kaggle or Hugging Face and extract it to the 'data' folder.")
+            os.rmdir(target_dir)
+            import sys
+            sys.exit(1)
+            
         print(f"Extracting {zipfile_name}...")
         with zipfile.ZipFile(zipfile_name, 'r') as zip_ref:
-            zip_ref.extractall(DATA_DIR)
+            zip_ref.extractall(data_dir)
         os.remove(zipfile_name)
 
 
-def download_scanobjectnn():
-    if not os.path.exists(DATA_DIR):
-        os.mkdir(DATA_DIR)
-    if not os.path.exists(os.path.join(DATA_DIR, 'h5_files')):
-        os.mkdir(os.path.join(DATA_DIR, 'h5_files'))
+def download_scanobjectnn(data_dir):
+    if not os.path.exists(data_dir):
+        os.mkdir(data_dir)
+    target_dir = os.path.join(data_dir, 'h5_files')
+    # Check if a file inside actually exists to avoid empty directory bugs
+    if not os.path.exists(os.path.join(target_dir, 'main_split', 'training_objectdataset_augmentedrot_scale75.h5')):
+        if not os.path.exists(target_dir):
+            os.mkdir(target_dir)
         www = 'https://hkust-vgd.ust.hk/scanobjectnn/h5_files.zip'
         zipfile_name = os.path.basename(www)
         import urllib.request
         import zipfile
         import shutil
+        import ssl
         print(f"Downloading {zipfile_name}...")
-        urllib.request.urlretrieve(www, zipfile_name)
+        
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        req = urllib.request.Request(www, headers={'User-Agent': 'Mozilla/5.0'})
+        
+        with urllib.request.urlopen(req, context=ctx) as response, open(zipfile_name, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+            
         print(f"Extracting {zipfile_name}...")
         with zipfile.ZipFile(zipfile_name, 'r') as zip_ref:
-            zip_ref.extractall(DATA_DIR)
+            zip_ref.extractall(data_dir)
         os.remove(zipfile_name)
 
 
 def load_modelnet40(data_dir, partition):
-    download_modelnet40()
+    download_modelnet40(data_dir)
     all_data = []
     all_label = []
     for h5_name in glob.glob(os.path.join(data_dir, 'modelnet40*hdf5_2048', '*%s*.h5'%partition)):
@@ -73,7 +105,7 @@ def load_modelnet40(data_dir, partition):
 
 
 def load_scanobjectnn(data_dir, partition):
-    # download_scanobjectnn()
+    # download_scanobjectnn(data_dir)
     h5_name = os.path.join(data_dir, 'h5_files/main_split/', '%s_objectdataset_augmentedrot_scale75.h5'%partition)
 
     f = h5py.File(h5_name, 'r')
