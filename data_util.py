@@ -105,7 +105,7 @@ def load_modelnet40(data_dir, partition):
 
 
 def load_scanobjectnn(data_dir, partition):
-    # download_scanobjectnn(data_dir)
+    download_scanobjectnn(data_dir)
     h5_name = os.path.join(data_dir, 'h5_files/main_split/', '%s_objectdataset_augmentedrot_scale75.h5'%partition)
 
     f = h5py.File(h5_name, 'r')
