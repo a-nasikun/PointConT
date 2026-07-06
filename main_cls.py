@@ -55,23 +55,23 @@ def train(args):
     logger.info('Load %s dataset ...' % args.dataset)
     DATA_PATH = hydra.utils.to_absolute_path(args.dataset_dir)
 
+    subset_fraction = args.get('subset_fraction', 1.0)
     if args.dataset == 'ModelNet40':
-        subset_fraction = args.get('subset_fraction', 1.0)
         train_loader = DataLoader(ModelNet40(DATA_PATH, partition='train', num_points=args.num_points, subset_fraction=subset_fraction), num_workers=8,
                                 batch_size=args.batch_size, shuffle=True, drop_last=True)
         test_loader = DataLoader(ModelNet40(DATA_PATH, partition='test', num_points=args.num_points, subset_fraction=subset_fraction), num_workers=8,
-                                batch_size=args.test_batch_size, shuffle=False, drop_last=False)                                      
+                                batch_size=args.test_batch_size, shuffle=False, drop_last=False)
     elif args.dataset == 'ScanObjectNN':
-        train_loader = DataLoader(ScanObjectNN(DATA_PATH, partition='training', num_points=args.num_points), num_workers=8,
+        train_loader = DataLoader(ScanObjectNN(DATA_PATH, partition='training', num_points=args.num_points, subset_fraction=subset_fraction), num_workers=8,
                                 batch_size=args.batch_size, shuffle=True, drop_last=True)
-        test_loader = DataLoader(ScanObjectNN(DATA_PATH, partition='test', num_points=args.num_points), num_workers=8,
+        test_loader = DataLoader(ScanObjectNN(DATA_PATH, partition='test', num_points=args.num_points, subset_fraction=subset_fraction), num_workers=8,
                                 batch_size=args.test_batch_size, shuffle=False, drop_last=False)
     else:
-        raise NotImplementedError     
+        raise NotImplementedError
 
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
     logger.info('Using GPU_idx : %s' % str(args.gpu))
-    
+
     # model loading
     logger.info('Load %s model ...' % args.model_name)
     model = PointConT_cls(args).cuda()
@@ -244,15 +244,15 @@ def test(args):
 
     # data loading
     DATA_PATH = hydra.utils.to_absolute_path(args.dataset_dir)
+    subset_fraction = args.get('subset_fraction', 1.0)
     if args.dataset == 'ModelNet40':
-        subset_fraction = args.get('subset_fraction', 1.0)
         test_loader = DataLoader(ModelNet40(DATA_PATH, partition='test', num_points=args.num_points, subset_fraction=subset_fraction), num_workers=8,
-                                batch_size=args.test_batch_size, shuffle=False, drop_last=False)                                      
+                                batch_size=args.test_batch_size, shuffle=False, drop_last=False)
     elif args.dataset == 'ScanObjectNN':
-        test_loader = DataLoader(ScanObjectNN(DATA_PATH, partition='test', num_points=args.num_points), num_workers=8,
+        test_loader = DataLoader(ScanObjectNN(DATA_PATH, partition='test', num_points=args.num_points, subset_fraction=subset_fraction), num_workers=8,
                                 batch_size=args.test_batch_size, shuffle=False, drop_last=False)
     else:
-        raise NotImplementedError     
+        raise NotImplementedError
 
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
     

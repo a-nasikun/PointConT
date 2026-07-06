@@ -197,8 +197,24 @@ class ModelNet40(Dataset):
 
 
 class ScanObjectNN(Dataset):
-    def __init__(self, data_dir=DATA_DIR, num_points=1024, partition='training'):
+    def __init__(self, data_dir=DATA_DIR, num_points=1024, partition='training', subset_fraction=1.0):
         self.data, self.label = load_scanobjectnn(data_dir, partition)
+
+        # Training/testing on a stratified subset of the data only.
+        if subset_fraction < 1.0:
+            new_data = []
+            new_label = []
+            unique_labels = np.unique(self.label)
+            for c in unique_labels:
+                idx = np.where(self.label == c)[0]
+                np.random.shuffle(idx)
+                num_samples = max(1, int(len(idx) * subset_fraction))
+                selected_idx = idx[:num_samples]
+                new_data.append(self.data[selected_idx])
+                new_label.append(self.label[selected_idx])
+            self.data = np.concatenate(new_data, axis=0)
+            self.label = np.concatenate(new_label, axis=0)
+
         self.num_points = num_points
         self.partition = partition
 
