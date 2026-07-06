@@ -17,3 +17,4 @@ __pycache__/
 /config/PartSeg.yaml
 /config/SemSeg.yaml
 /models/other_models/
+Point_Cloud_Classification_Using_Content-Based_Transformer_via_Clustering_in_Feature_Space.pdf
